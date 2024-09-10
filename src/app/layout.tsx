@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { inter, open_sans, poppins } from "@/config/font";
+import { archivo } from "@/config/font";
 import { cn } from "@/lib/utils";
 import "./styles/global.css";
 import Footer from "@/components/Footer";
@@ -22,12 +22,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <link rel="icon" href="next.svg" sizes="any" />
-      <body
-        className={cn(inter.variable, poppins.variable, open_sans.variable)}
-      >
+      <body className={cn(archivo.variable)}>
         <DataCtxProvider>
           <NotsupportedCountryBanner />
-          <BlockDesktopView override={false} />
+          <BlockDesktopView override={true} />
           <Navbar />
           <BusinessContextProvider>{children}</BusinessContextProvider>
           <Footer />

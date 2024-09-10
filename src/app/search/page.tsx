@@ -12,9 +12,12 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 
 const ExploreBusiness = async () => {
+  console.log("Are you available ");
   const data = await getBusinessesBasedOnQueryParams();
   const businesses: IBusinessProfile[] = data.businesses;
   const pagination = data?.pagination;
+  console.log("Hello World ");
+  console.log("The Business Length  ", businesses.length);
 
   return (
     <>
@@ -22,12 +25,15 @@ const ExploreBusiness = async () => {
 
       {/* pagination */}
       {businesses.length > 0 && (
-        <Pagination
-          totalPages={pagination.totalPages}
-          urlSearchParam={pagination.urlSearchParam}
-          activePage={pagination.activePage}
-          location={pagination.location}
-        />
+        <div className="hidden">
+          <Pagination
+            totalPages={pagination.totalPages}
+            urlSearchParam={pagination.urlSearchParam}
+            activePage={pagination.activePage}
+            location={pagination.location}
+            SSR={true}
+          />
+        </div>
       )}
 
       {/* render hidden link with businesses data for seo purposes */}
@@ -61,12 +67,15 @@ export default ExploreBusiness;
 
 async function getBusinessesBasedOnQueryParams() {
   try {
+    console.log("Did we get here ");
     const headersList = headers();
     const header_url = headersList.get("x-url") || "";
     const { search } = extractQueryParam(header_url);
     const { businesses, pagination } = await getBusinessesWithPagination(
       search
     );
+    console.log("The businesses ", businesses);
+    console.log("The pagination ", pagination);
     const urlSearchParam = new URLSearchParams(search);
     return {
       businesses,

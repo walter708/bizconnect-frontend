@@ -17,7 +17,7 @@ export default function ContactSupportSubmitModal({
 }: IContactSupportSubmitModalProps) {
   const customStyles = {
     content: {
-      top: "35%",
+      top: "5%",
       left: "50%",
       right: "auto",
       bottom: "auto",
@@ -26,6 +26,8 @@ export default function ContactSupportSubmitModal({
       maxWidth: "90%",
       maxHeight: "80vh",
       overflow: "auto",
+      borderRadius: "10px",
+      padding: "10px",
     },
     overlay: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
   };
@@ -38,8 +40,18 @@ export default function ContactSupportSubmitModal({
         contentLabel="Success Modal"
         style={customStyles}
       >
-        <FlexRowCenter className="w-full">
-          <h2 className="text-[16px] mb-[10px] font-bold font-pp text-center">
+        <FlexRowCenter className="w-full rounded-[10px] px-5">
+          {successMessage && (
+            <span>
+              {successMessage && <img src="/assets/icons/green-check.svg" />}
+            </span>
+          )}
+          {errorMessage && (
+            <span>
+              {errorMessage && <img src="/assets/icons/cancel-red.svg" />}
+            </span>
+          )}
+          <h2 className="text-[15px] font-normal font-pp text-center text-blue-200">
             {successMessage && successMessage}
             {errorMessage && errorMessage}
           </h2>

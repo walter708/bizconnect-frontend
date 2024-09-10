@@ -8,11 +8,14 @@ import { loginUser } from "@/api/auth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as yup from "yup";
-import { FlexColStart, FlexColStartCenter } from "@components/Flex";
+import {
+  FlexColStart,
+  FlexColStartCenter,
+  FlexRowStart,
+} from "@components/Flex";
 import ErrorComponent from "../../../components/ErrorComponent";
 import withoutAuth from "@/utils/auth-helpers/withoutAuth";
 import { useDataCtx } from "@/context/DataCtx";
-import Link from "next/link";
 
 const validationSchema = yup.object({
   email: yup.string().email("Enter valid email").required(),
@@ -26,48 +29,22 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState<String | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const noAccount = "Don't have an Account? ";
 
   const onSubmit = async (values: LogInData) => {
-    const { ...data } = values;
     setIsLoading(true);
     try {
-      const res = await loginUser(data).catch((err) => {
-        const errorResponse: LogInResponse = err.response.data;
-        console.log(err.response.data);
-        // Set error message
-        const errorCode = errorResponse?.message.code;
-        if (errorCode == 404 || errorCode == 401) {
-          setErrorMessage(errorResponse?.message.desc);
-        } else {
-          setErrorMessage("error occured while login");
-        }
-        setError(true);
-        console.error(err);
-        setIsLoading(false);
-      });
-
+      const res = await loginUser(values);
       const resData: LogInResponse = res?.data;
 
       if (resData?.success) {
-        //res &&
-        // Set token in local Storage
         const tokenString = resData.data.token.split(" ")[1];
         localStorage.setItem(TOKEN_NAME, tokenString);
-        setIsLoading(false);
 
-        // const authToken = localStorage.getItem(TOKEN_NAME) as string;
         const parsedToken: JwtPayload = tokenString
-          ? JSON.parse(atob(tokenString?.split(".")[1]))
-          : {}; //check atob
+          ? JSON.parse(atob(tokenString.split(".")[1]))
+          : {};
 
-        // route to homepage
-        //check token and route accourdingly
         if (parsedToken.verified) {
-          // window.location.reload();
-
-          // this is done to reload the page after login
-          // so every component can get the updated data
           window.location.href = "/?login=true";
         } else {
           router.push("/auth/verify-account");
@@ -75,12 +52,20 @@ const Login = () => {
         }
 
         setError(false);
-        // window.location.reload();
       }
-    } catch (err) {
-      setIsLoading(false);
+    } catch (err: any) {
+      const errorResponse: LogInResponse = err.response?.data;
+      const errorCode = errorResponse?.message?.code;
+
+      setErrorMessage(
+        errorCode === 404 || errorCode === 401
+          ? errorResponse?.message?.desc
+          : "An error occurred while logging in"
+      );
       setError(true);
-      setErrorMessage("error occured while login");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -102,16 +87,16 @@ const Login = () => {
   });
 
   return (
-    <FlexColStart className="w-full h-full px-[16px] pt-[24px] pb-[32px]">
-      <FlexColStartCenter className="w-full px-[16px] pt-[24px] pb-[32px] bg-white-100 text-center ">
-        <h4 className="text-[16px] font-pp font-semibold leading-[24px] mb-[24px] text-blue-200">
-          Sign in
+    <FlexColStart className="w-full h-full md:h-[80%] px-4 pt-[40px] pb-[150px] bg-blue-203 flex items-center">
+      <FlexColStartCenter className="max-w-[609px] mx-auto px-3 md:px-10 pt-[24px] pb-[32px] bg-white-100 text-center rounded-[8px] w-full shadow-lg shadow-gray-103/20">
+        <h4 className="text-lg md:text-2xl font-pp font-bold leading-[24px] mb-[24px]">
+          Login
         </h4>
         {/* Display Error message */}
         {error && (
           <span className="text-red-100 text-[13px]">{errorMessage}</span>
         )}
-        <form className="w-full" onSubmit={formik.handleSubmit}>
+        <form className="flex flex-col w-full" onSubmit={formik.handleSubmit}>
           <ErrorComponent
             value={
               formik.touched.email && formik.errors.email
@@ -126,6 +111,7 @@ const Login = () => {
             value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
+            required
             rightIcon={
               <Mail
                 strokeWidth={1}
@@ -137,7 +123,6 @@ const Login = () => {
             parentClassname="w-full px-0 border border-white-400/50 px-4"
             inputClassname="w-full px-3 outline-none border-none"
           />
-          <br />
 
           <ErrorComponent
             value={
@@ -153,6 +138,7 @@ const Login = () => {
             value={formik.values.password}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
+            required
             rightIcon={
               showPassword ? (
                 <Eye
@@ -172,6 +158,14 @@ const Login = () => {
             parentClassname="w-full px-0 border border-white-400/50 px-4"
             inputClassname="w-full px-3 outline-none border-none"
           />
+          <FlexRowStart className="w-full gap-0 -translate-y-2">
+            <a
+              className="forgot text-[12px] underline font-normal text-blue-200"
+              href="/auth/forgot-password/email"
+            >
+              Forgot password?
+            </a>
+          </FlexRowStart>
 
           <Button
             intent={"primary"}
@@ -181,20 +175,17 @@ const Login = () => {
             spinnerColor="#000"
             onClick={formik.handleSubmit as any}
           >
-            <span className="text-[14px] font-pp">Submit</span>
+            <span className="text-[14px]">Submit</span>
           </Button>
         </form>
-        <a
-          className="forgot font-pp text-sm underline text-blue-200"
-          href="/auth/forgot-password/email"
-        >
-          <p>Forgot password?</p>
-        </a>
 
-        <p className="text-dark-100/50 text-[14px] font-pp mt-[14px] ">
-          {noAccount}
-          <a href="/auth/signup">
-            <span className="text-blue-200 underline">Sign up</span>
+        <p className="text-dark-100 text-[14px] font-pp mt-[14px] flex-center gap-3 ">
+          Don't have an Account?{" "}
+          <a
+            href="/auth/signup"
+            className="text-blue-200 text-[14px] font-light underline"
+          >
+            Sign up
           </a>
         </p>
       </FlexColStartCenter>

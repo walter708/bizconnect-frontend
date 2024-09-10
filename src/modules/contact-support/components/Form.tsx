@@ -11,6 +11,7 @@ import Input from "@/components/ui/input";
 import Button from "@components/ui/button";
 import { FlexColStart } from "@components/Flex";
 import ErrorComponent from "@/components/ErrorComponent";
+import { countryCodes } from "@/data/countryCodes";
 
 const validationSchema = yup.object({
   personName: yup
@@ -20,12 +21,34 @@ const validationSchema = yup.object({
   email: yup.string().email("Enter valid email").required(),
   phoneNumber: yup
     .string()
-    .matches(/^\+(?:[0-9]\s?){6,14}[0-9]$/, "Invalid phone number"),
+    .matches(/^(?:\+?[0-9]\s?){7,15}[0-9]$/, "Invalid phone number")
+    .required("Phone number is required"),
   problemDescription: yup
     .string()
     .min(1, "Describe the issue you are having")
     .required("Issue description is required"),
 });
+
+const CountryCodeDropdown = ({
+  selectedCode,
+  handleCodeChange,
+}: {
+  selectedCode: string;
+  handleCodeChange: any;
+}) => (
+  <select
+    value={selectedCode}
+    onChange={handleCodeChange}
+    className="appearance-none bg-none border-none pr-0 pl-2 text-sm text-gray-700 h-full focus:ring-0 focus-visible:outline-none focus:outline-none "
+  >
+    {countryCodes.map((country, idx) => (
+      <option key={idx} value={country.code}>
+        {country.flag} {country.code}
+      </option>
+    ))}
+    <img src="/profile-chev.svg" alt="" />
+  </select>
+);
 
 export default function ContactSupportForm() {
   const [error, setError] = useState(false);
@@ -33,6 +56,7 @@ export default function ContactSupportForm() {
   const [errorMessage, setErrorMessage] = useState<String | null>(null);
   const [successMessage, setSuccessMessage] = useState<String | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCode, setSelectedCode] = useState(countryCodes[0].code);
 
   const onSubmit = async (
     values: ContactSupportDataSchema,
@@ -78,6 +102,10 @@ export default function ContactSupportForm() {
     validationSchema: validationSchema,
   });
 
+  // Function to check if all input fields have values
+  const hasAllFieldsFilled = () => {
+    return Object.values(formik.values).every((value) => !!value.trim());
+  };
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -86,18 +114,25 @@ export default function ContactSupportForm() {
     <>
       {/* Display Error message */}
       {error && <ErrorComponent value={errorMessage as string} />}
-      <form className="w-full" onSubmit={formik.handleSubmit}>
+      <form
+        className="max-w-7xl mx-auto grid md:grid-cols-2 w-full bg-white-100 md:gap-[68px] rounded-[15px] p-3 md:p-10 lg:pr-[80px]"
+        onSubmit={formik.handleSubmit}
+      >
+        <div className="hidden md:block md:-ml-0">
+          <img src="/assets/icons/contact-bg.svg" alt="" />
+        </div>
         <FlexColStart className="w-full gap-0 m-0 p-0">
           <ErrorComponent value={formik.errors.personName ?? ""} />
 
           <Input
             type="text"
-            label="Name"
+            label="Full name"
             name="personName"
             value={formik.values.personName}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="Enter Name"
+            required
           />
           <ErrorComponent
             value={
@@ -109,12 +144,13 @@ export default function ContactSupportForm() {
 
           <Input
             type="text"
-            label="Your Email Address"
+            label="Email address"
             name="email"
             value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="Enter Your Email"
+            required
           />
           <ErrorComponent
             value={
@@ -126,12 +162,23 @@ export default function ContactSupportForm() {
 
           <Input
             type="text"
-            label="Your Phone Number"
+            label="Phone number"
             name="phoneNumber"
             value={formik.values.phoneNumber}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="Enter Your Phone Number"
+            required
+            // leftIcon={<img src="/contact-phone.svg" className="ml-3" alt="" /> }
+            leftIcon={
+              <div className="flex items-center">
+                <CountryCodeDropdown
+                  selectedCode={selectedCode}
+                  handleCodeChange={(e: any) => setSelectedCode(e.target.value)}
+                />
+                <img src="/profile-chev.svg" alt="" />
+              </div>
+            }
           />
           <ErrorComponent
             value={
@@ -143,14 +190,17 @@ export default function ContactSupportForm() {
           />
 
           <FlexColStart className="w-full mb-[24px]">
-            <label htmlFor="">Describe problem</label>
+            <label htmlFor="">
+              Message<span className="text-[#F75B4E]">*</span>
+            </label>
             <textarea
               name="problemDescription"
               value={formik.values.problemDescription}
               onChange={formik.handleChange}
-              rows={4}
-              className="w-full px-3 py-2 font-pp font-normal text-[12px] bg-white-200/10 border-[1px] border-white-200/40 rounded-[5px]"
-              placeholder="describe the issue you are having"
+              rows={5}
+              className="w-full px-3 py-2 font-pp font-normal text-[12px] bg-white-100 border  focus-visible:ring-white-100/20  focus:ring-0 focus-visible:outline-none focus:outline-none   border-gray-213 border-input rounded-[5px]"
+              placeholder=""
+              onBlur={formik.handleBlur}
             />
           </FlexColStart>
 
@@ -158,9 +208,9 @@ export default function ContactSupportForm() {
             type="submit"
             intent="primary"
             size="lg"
-            disabled={isLoading}
+            disabled={!hasAllFieldsFilled()}
             isLoading={isLoading}
-            className="w-full rounded-[5px] mt-10"
+            className="w-full rounded-[5px] mt-6"
           >
             <span className="font-pp font-medium text-[14px]">
               Submit Request

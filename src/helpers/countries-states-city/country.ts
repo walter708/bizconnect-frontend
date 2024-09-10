@@ -17,20 +17,20 @@ function getAllCountries(): ICountry[] {
 function sortByIsoCode(countries: ICountry[]): ICountry[] {
   return countries.sort((a, b) => {
     return compare<ICountry>(a, b, (entity) => {
-      return entity.isoCode;
+      return entity?.isoCode;
     });
   });
 }
 
 function isCountrySupportedByName(name: string): boolean {
   return countryList.some(
-    (country) => country.name.toLowerCase() === name.toLowerCase()
+    (country) => country?.name?.toLowerCase() === name?.toLowerCase()
   );
 }
 
 function isCountrySupportedByIsoCode(isoCode: string): boolean {
   return countryList.some(
-    (country) => country.isoCode.toLowerCase() === isoCode.toLowerCase()
+    (country) => country?.isoCode?.toLowerCase() === isoCode?.toLowerCase()
   );
 }
 

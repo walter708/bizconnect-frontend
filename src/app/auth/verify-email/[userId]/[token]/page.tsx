@@ -48,7 +48,7 @@ const VerifiedEmail = () => {
       <div className="w-full h-full rounded-[8px] bg-white-100 px-[16px] py-[32px] text-center">
         {verified && (
           <>
-            <h4 className="text-[16px] font-semibold leading-[14px] font-pp ">
+            <h4 className="text-[16px] font-semibold leading-[14px] font-archivo ">
               Your Account is Verified
             </h4>
 
@@ -57,7 +57,7 @@ const VerifiedEmail = () => {
               intent="primary"
               size="lg"
               href="/auth/login"
-              className="w-full rounded-[5px] mt-3 font-pp font-semibold"
+              className="w-full rounded-[5px] mt-3 font-archivo font-semibold"
             >
               Login
             </Button>
@@ -66,7 +66,7 @@ const VerifiedEmail = () => {
         {/* Display Error message */}
         {!verified && error && (
           <FlexColCenter className="w-full text-center">
-            <h4 className="text-[16px] font-semibold leading-[14px] font-pp ">
+            <h4 className="text-[16px] font-semibold leading-[14px] font-archivo ">
               Your Account is not Verified
             </h4>
             <ErrorComponent value={errorMessage as string} />

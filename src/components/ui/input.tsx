@@ -9,6 +9,7 @@ interface IInputProps {
   parentClassname?: React.ComponentProps<"div">["className"];
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  required?: boolean;
 }
 
 export interface InputProps
@@ -24,14 +25,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps & IInputProps>(
       leftIcon,
       rightIcon,
       label,
+      required,
       ...props
     },
     ref
   ) => {
     return (
       <FlexColStart className="w-full gap-[4px] text-left pb-5">
-        <label className="text-[14px] font-medium font-pp text-dark-100/60">
-          {label}
+        <label className="text-[14px] font-medium font-archivo text-dark-100/60">
+          {label} {required && <span className="text-red-305">*</span>}
         </label>
         <FlexRowCenter
           className={cn(
@@ -44,7 +46,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps & IInputProps>(
           <input
             type={type}
             className={cn(
-              "flex h-10 w-full font-pp text-blue-200 placeholder:text-dark-104 rounded-md border border-input bg-none text-[12px] file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none  focus-visible:ring-white-100/20 focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:bg-none target:bg-none ",
+              "flex h-10 w-full font-archivo text-blue-200 placeholder:text-dark-104 rounded-md border border-input bg-none text-[12px] file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none  focus-visible:ring-white-100/20 focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:bg-none target:bg-none ",
               "w-full px-3 outline-none border-none",
               inputClassname
             )}

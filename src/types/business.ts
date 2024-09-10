@@ -1,3 +1,4 @@
+import type { SlotDaysType } from "@/data/dateTimeSlot";
 import { BaseResponseMessage } from "./auth";
 
 export type BusinessProfileFormikPropsValues = {
@@ -9,15 +10,16 @@ export type BusinessProfileFormikPropsValues = {
   city: string;
   street: string;
   postalCode: string;
+  image: string | null; // Now a string
   instagramUrl: string;
   websiteUrl: string;
   linkedinUrl: string;
   facebookUrl: string;
   phoneNumber: string;
   businessEmail: string;
-  openTime: string;
-  closeTime: string;
-  daysOfOperation: [];
+  operationDays: OperationDays;
+  cropped: string;
+  uncropped: string;
 };
 
 export interface BusinessCreationBody {
@@ -27,23 +29,39 @@ export interface BusinessCreationBody {
   country: string;
   stateAndProvince: string;
   city: string;
-  street: string;
-  postalCode: string;
-  publicId: string | null;
-  version: number | null;
-  signature: string | null;
-  phoneNumber: string | null;
-  businessEmail: string | null;
-  openTime: string;
-  closeTime: string;
-  daysOfOperation: string[];
-  websiteUrl: string | null;
-  linkedinUrl: string | null;
-  instagramUrl: string | null;
-  twitterUrl?: string | null;
-  facebookUrl: string | null;
-  deleteLogo: boolean;
-  logoUrl: string | null;
+  street?: string;
+  postalCode?: string;
+  phoneNumber?: string | null;
+  businessEmail?: string | null;
+  operationDays: OperationDays;
+  websiteUrl?: string | null;
+  linkedinUrl?: string | null;
+  instagramUrl?: string | null;
+  // twitterUrl?: string | null;
+  facebookUrl?: string | null;
+  image?: {
+    croppedUrl: string | null;
+    originalUrl: string | null;
+  } | null;
+  cloudinaryConfig?: {
+    versions?: {
+      cropped?: number | null;
+      original?: number | null;
+    };
+    publicIds?: {
+      cropped?: string | null;
+      original?: string | null;
+    };
+    signatures?: {
+      cropped?: string | null;
+      original?: string | null;
+    };
+  } | null;
+}
+
+export interface UpdateBusinessBody extends BusinessCreationBody {
+  uuid: string;
+  deleteImage?: boolean;
 }
 
 export interface CloudinaryUploadResponse {
@@ -78,7 +96,7 @@ export interface UserBusinessList {
   uuid: string;
   userUuid: string;
   name: string;
-  description: string | null;
+  description: string;
   businessCategoryUuid: string;
   country: string;
   stateAndProvince: string;
@@ -88,9 +106,9 @@ export interface UserBusinessList {
   logoUrl: string | null;
   phoneNumber: string | null;
   businessEmail: string | null;
-  openTime: string | null;
-  closeTime: string | null;
-  daysOfOperation: string[] | null;
+  operationDays: OperationDays;
+  imageUrl: string | null;
+  croppedImageUrl: string | null;
   websiteUrl: string | null;
   linkedinUrl: string | null;
   instagramUrl: string | null;
@@ -158,3 +176,17 @@ export enum BusinessFilterType {
 }
 
 export type RegisterBusinessTabs = "business-profile" | "operations-info";
+
+export type OperationDays = {
+  day: SlotDaysType;
+  openTime: string;
+  closeTime: string;
+}[];
+
+export type ValidSocialMedia =
+  | "facebook"
+  | "instagram"
+  | "twitter"
+  | "linkedin"
+  | "tiktok"
+  | "website";

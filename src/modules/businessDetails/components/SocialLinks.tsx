@@ -1,18 +1,30 @@
 "use client";
 import { FlexColStart, FlexRowStartBtw } from "@/components/Flex";
 import RenderSocialLinks from "@/components/RenderSocialLink";
-import React, { useState } from "react";
+import { cn } from "@/lib/utils";
+import type { ValidSocialMedia } from "@/types/business";
 
 interface SocialLinkProps {
-  socialLinks: { name: string; url: string | undefined }[];
+  socialLinks: { name: ValidSocialMedia; url: string | undefined }[];
+  className?: React.ComponentProps<"div">["className"];
+  labelClassName?: React.ComponentProps<"label">["className"];
 }
 
-export default function SocialLinks({ socialLinks }: SocialLinkProps) {
+export default function SocialLinks({
+  socialLinks,
+  className,
+  labelClassName,
+}: SocialLinkProps) {
   return (
-    <FlexColStart className="w-full mt-[15px] pb-[30px]">
-      <h3 className="text-[13px] leading-[15px] font-semibold font-pp text-blue-200">
+    <FlexColStart className={cn("w-full mt-[15px] pb-[30px]", className)}>
+      <label
+        className={cn(
+          "text-[13px] sm:hidden leading-[15px] font-semibold font-archivo text-blue-200 my-2",
+          labelClassName
+        )}
+      >
         Follow our social media
-      </h3>
+      </label>
       <FlexRowStartBtw className="w-auto gap-[20px] mt-[10px]">
         {socialLinks.map((link) => (
           <RenderSocialLinks

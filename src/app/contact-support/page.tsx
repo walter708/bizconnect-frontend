@@ -1,6 +1,4 @@
 import ContactSupportForm from "@/modules/contact-support/components/Form";
-import { UpdateNavbarBgColor } from "@/modules/contact-support/components/updateNavbarBgColor";
-import { FlexColCenter, FlexRowCenter } from "@components/Flex";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,25 +7,26 @@ export const metadata: Metadata = {
 
 const ContactSupport = () => {
   return (
-    <div className="w-full p-[16px] bg-blue-204 ">
-      <UpdateNavbarBgColor />
-      <h2 className="text-center mb-[16px] text-[32px] leading-[40px] text-blue-200 font-semibold font-pp">
-        Contact Support
-      </h2>
+    <div className="w-full px-[16px] bg-blue-204 md:pb-[311px] pb-[350px]">
+      <div
+        className={`max-w-7xl mx-auto flex flex-row items-center justify-center px-3`}
+      >
+        <div className="flex flex-col items-center mt-[60px] md:mt-[104px] mb-[25px] md:mb-[30px] gap-[5px] md:gap-[10px] ">
+          <header className="bg-brand-green-shade100 text-dark-501 text-[13px] md:text-base font-medium leading-6 py-[10px] rounded-3xl px-4 w-max">
+            SUPPORT
+          </header>
+          <p
+            className={`text-center mt-2 text-blue-200 text-[25px] font-extrabold md:text-[45px] leading-[38px] md:leading-[80px]`}
+          >
+            We’d Love To Help
+          </p>
+          <p className="text-center text-gray-100 text-[15px] md:text-[20px] leading-[23px] md:leading-[40px] font-medium">
+            Reach out to us and we will get in touch within 24 hours
+          </p>
+        </div>
+      </div>
 
-      <FlexColCenter className="w-full pt-[24px] px-[16px] pb-[32px] rounded-[20px] text-center bg-white-100 ">
-        <FlexRowCenter className="mb-[24px]">
-          <FlexRowCenter className="w-[88px] h-[88px] rounded-[50%] p-[10px] bg-blue-202 ">
-            <img src="/assets/icons/contact-support.svg" className="w-[35px]" />
-          </FlexRowCenter>
-        </FlexRowCenter>
-
-        <h4 className="tetx-[16px] font-semibold font-pp mb-[20px] text-blue-200">
-          Please complete support form
-        </h4>
-
-        <ContactSupportForm />
-      </FlexColCenter>
+      <ContactSupportForm />
     </div>
   );
 };

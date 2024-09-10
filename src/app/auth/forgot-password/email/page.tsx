@@ -73,12 +73,12 @@ const Email = () => {
       {!sentEmail && (
         <form onSubmit={formik.handleSubmit}>
           <div className="pt-[80px] px-[16px] py-[150px] bg-gray-200">
-            <FlexColStart className="w-full pt-[24px] px-[16px] py-[32px] rounded-[8px] bg-white-100 ">
+            <FlexColStart className="max-w-[609px] mx-auto px-3  w-full pt-[24px] md:px-[16px] py-[32px] rounded-[8px] bg-white-100">
               {/* Display Error message */}
               {error && <ErrorComponent value={errorMessage as string} />}
 
               <FlexRowCenter className="w-full">
-                <h4 className="text-[16px] font-semibold font-pp leading-[24px] mb-[24px] ">
+                <h4 className="text-[16px] font-semibold  leading-[24px] mb-[24px] ">
                   Reset password
                 </h4>
               </FlexRowCenter>
@@ -111,9 +111,7 @@ const Email = () => {
                 type="submit"
                 disabled={formik.values.email === ""}
               >
-                <span className="text-[14px] font-semibold font-pp">
-                  Verify Email
-                </span>
+                <span className="text-[14px] font-semibold ">Verify Email</span>
               </Button>
             </FlexColStart>
           </div>

@@ -1,7 +1,8 @@
 "use client";
 import { getUserDetails } from "@/api/auth";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { UserDetails } from "@/types/auth";
+import useAfterMount from "./useAfterMount";
 
 export const useAuth = () => {
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
@@ -19,9 +20,9 @@ export const useAuth = () => {
     }
   }, []);
 
-  useEffect(() => {
+  useAfterMount(() => {
     fetchUserInfo();
-  }, [fetchUserInfo]);
+  }, []);
 
   return {
     loading,

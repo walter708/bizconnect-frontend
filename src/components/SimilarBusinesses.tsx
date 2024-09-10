@@ -1,11 +1,12 @@
 import { FlexColStart } from "@components/Flex";
-import { IBusinessProfile, ISearch } from "@/types/business-profile";
-import { constructBizImgUrl, constructDOP, isImgUrlValid } from "@/utils";
+import { IBusinessProfile } from "@/types/business-profile";
+import { constructBizImgUrl } from "@/utils";
 import BusinessesNotfound from "@/components/NotFound";
 import {
   ColLayoutCard,
   RowLayoutCard,
 } from "@/modules/search/components/LayoutCard";
+import { cn } from "@/lib/utils";
 
 interface SimilarBusinessesProps {
   layout: "col" | "row";
@@ -20,32 +21,27 @@ const SimilarBusinesses = ({
   layout,
   windowLocation,
 }: SimilarBusinessesProps) => {
-  if (businesses?.length === 0) return null;
-
-  const defaultImg = "/assets/images/default-img.jpeg";
-
   return (
     <FlexColStart className="w-full mt-[20px]">
-      <FlexColStart className="w-full gap-[20px]">
-        {businesses?.length > 0 ? (
+      <FlexColStart
+        className={cn(
+          "flex sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5",
+          "w-full gap-[20px]"
+        )}
+      >
+        {businesses?.length > 0 &&
           businesses.map((businesses) => {
-            const daysOfOperation = constructDOP(
-              businesses?.daysOfOperation!,
-              businesses?.openTime!,
-              businesses?.closeTime!
+            const businessesImg = constructBizImgUrl(
+              businesses.croppedImageUrl!
             );
-
-            const businessesImg = constructBizImgUrl(businesses.logoUrl!);
             return layout === "col" ? (
               <ColLayoutCard
                 name={businesses.name ?? "N/A"}
                 categories={businesses?.category as string[]}
                 location={`${businesses.city}, ${businesses.stateAndProvince}`}
-                daysOfOps={daysOfOperation}
+                operationDays={businesses.operationDays}
                 phone={businesses.phoneNumber ?? "N/A"}
-                image={
-                  !isImgUrlValid(businessesImg) ? defaultImg : businessesImg
-                }
+                image={businessesImg}
                 _key={businesses.uuid!}
                 id={businesses.uuid}
                 key={businesses.uuid}
@@ -57,11 +53,9 @@ const SimilarBusinesses = ({
                 name={businesses.name ?? "N/A"}
                 categories={businesses?.category as string[]}
                 location={`${businesses.city}, ${businesses.stateAndProvince}`}
-                daysOfOps={daysOfOperation}
+                operationDays={businesses.operationDays}
                 phone={businesses.phoneNumber ?? "N/A"}
-                image={
-                  !isImgUrlValid(businessesImg) ? defaultImg : businessesImg
-                }
+                image={businessesImg}
                 _key={businesses.uuid!}
                 id={businesses.uuid}
                 key={businesses.uuid}
@@ -69,11 +63,11 @@ const SimilarBusinesses = ({
                 windowLocation={windowLocation}
               />
             );
-          })
-        ) : (
-          <BusinessesNotfound />
-        )}
+          })}
       </FlexColStart>
+      {businesses?.length === 0 && (
+        <BusinessesNotfound message="No similar businesses found." />
+      )}
     </FlexColStart>
   );
 };

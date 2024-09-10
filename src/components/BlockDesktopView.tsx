@@ -42,10 +42,10 @@ export default function BlockDesktopView({
           height={28}
           alt=""
         />
-        <h1 className="text-[1.5rem] font-semibold font-pp text-blue-200 text-center p-[10px]">
+        <h1 className="text-[1.5rem] font-semibold font-archivo text-blue-200 text-center p-[10px]">
           Web View Notification
         </h1>
-        <p className="text-[1em] md:text-md font-pp font-normal text-blue-200 text-center p-[10px]">
+        <p className="text-[1em] md:text-md font-archivo font-normal text-blue-200 text-center p-[10px]">
           For an awesome experience, please switch to your mobile phone. Thanks
         </p>
       </FlexColCenter>

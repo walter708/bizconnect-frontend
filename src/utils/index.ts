@@ -1,7 +1,8 @@
-import { CloudinaryConfig } from "@/config";
-import type { ISearch } from "@/types/business-profile";
-
-const defaultImg = "/assets/images/default-img.jpeg";
+import { CloudinaryConfig, DEFAULT_BIZ_IMAGE } from "@/config";
+import { DaysByDayNumber } from "@/data/dateTimeSlot";
+import type { OperationDays } from "@/types/business";
+import type { INFilters, ISearch } from "@/types/business-profile";
+import type { AxiosError } from "axios";
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms * 1000));
@@ -12,54 +13,54 @@ export const removeAMPM = (time: string) => {
 
 interface DaysOfOperation {
   day: string | null;
-  ot: string | null; // open time
-  ct: string | null; // closing time
+  openTime: string | null;
+  closeTime: string | null;
 }
 
 export const determineBusOpTime = (daysOfOperation: DaysOfOperation[]) => {
-  if (!daysOfOperation || Object.entries(daysOfOperation).length === 0)
+  if (!Array.isArray(daysOfOperation) || daysOfOperation.length === 0)
     return { isOpened: false, closingTime: null };
 
-  const daysOfWeeks = [
-    "sunday",
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday",
-  ];
-  const today = new Date().getDay();
-  const day = daysOfOperation.find(
-    (d) => d.day!.toLowerCase() === daysOfWeeks[today]
+  const now = new Date();
+  const today = now.getDay();
+  const day = daysOfOperation?.find(
+    (d) => lowerCase(d.day) === lowerCase(DaysByDayNumber[today])
   );
-  if (day) {
-    const currentTime = Math.abs(new Date().getHours() - 12);
-    const closingTime = parseInt(day?.ct!?.split(":")[0]);
-    return currentTime < closingTime
-      ? {
-          isOpened: true,
-          closingTime: removeAMPM(day.ct!) + "PM",
-        }
-      : {
-          isOpened: false,
-          closingTime: null,
-        };
+
+  if (day && day.openTime && day.closeTime) {
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const parseTime = (timeStr: string) => {
+      const [time, period] = timeStr.split(" ");
+      let [hours, minutes] = time.split(":").map(Number);
+      if (period.toLowerCase() === "pm" && hours !== 12) hours += 12;
+      if (period.toLowerCase() === "am" && hours === 12) hours = 0;
+      return hours * 60 + minutes;
+    };
+
+    const openMinutes = parseTime(day.openTime);
+    const closeMinutes = parseTime(day.closeTime);
+
+    const isOpenPastMidnight = closeMinutes < openMinutes;
+    const isOpen = isOpenPastMidnight
+      ? currentMinutes >= openMinutes || currentMinutes < closeMinutes
+      : currentMinutes >= openMinutes && currentMinutes < closeMinutes;
+
+    return {
+      isOpened: isOpen,
+      closingTime: isOpen ? day.closeTime : null,
+    };
   }
+
   return { isOpened: false, closingTime: null };
 };
 
-export const constructDOP = (
-  daysOfWeek: string[] | null,
-  openTime: string | null,
-  closeTime: string | null
-) => {
-  return daysOfWeek?.map((day) => {
-    return {
-      day: day,
-      ot: openTime,
-      ct: closeTime,
-    };
+export const orderDaysOfOperation = (daysOfOperation: OperationDays) => {
+  if (!daysOfOperation || daysOfOperation.length === 0) return daysOfOperation;
+  return daysOfOperation.sort((a, b) => {
+    return (
+      Object.values(DaysByDayNumber).indexOf(a.day) -
+      Object.values(DaysByDayNumber).indexOf(b.day)
+    );
   });
 };
 
@@ -94,14 +95,21 @@ export const isUrlValid = (url: string) => {
   }
 };
 
-export const constructBizImgUrl = (url: string | null) => {
-  return !url
-    ? defaultImg
-    : `https://res.cloudinary.com/${CloudinaryConfig.cloudName}/image/upload/c_fill,q_500/${url}.jpg`;
+/**
+ * Constructs a business image URL
+ * @param publicId - The public ID of the image
+ *
+ * Use this only for businesses preview
+ */
+export const constructBizImgUrl = (publicId: string | null) => {
+  return publicId
+    ? `https://res.cloudinary.com/${CloudinaryConfig.cloudName}/image/upload/c_fill,q_500/${publicId}.jpg`
+    : DEFAULT_BIZ_IMAGE.image;
 };
 
 const replacedFilterNames = {
   businessCategoryUuid: "cat",
+  category: "cat",
   stateAndProvince: "st",
   state: "st",
   city: "cty",
@@ -195,6 +203,35 @@ export const constructSearchUrl = (
   return query.join("&");
 };
 
+export const constructNSearchUrlFromFilters = (filters: INFilters) => {
+  const query: string[] = [];
+  for (const [key, value] of Object.entries(filters)) {
+    if (key === "pagination") {
+      for (const [k, v] of Object.entries(value)) {
+        query.push(`${k}=${v}`);
+      }
+      continue;
+    }
+    if (value && key !== "pagination") {
+      query.push(`${replacedFilterNames[key as QueryKey]}=${encodeURI(value)}`);
+    }
+  }
+
+  return query.join("&");
+};
+
+export const constructSearchUrlFromObject = (
+  filters: Record<string, string | null>
+) => {
+  const query: string[] = [];
+  for (const [key, value] of Object.entries(filters)) {
+    if (value) {
+      query.push(`${key}=${value}`);
+    }
+  }
+  return query.join("&");
+};
+
 export const forceReloadClientPage = (time?: number) => {
   // force reload the page to update the search query
   // fetch business data
@@ -202,4 +239,55 @@ export const forceReloadClientPage = (time?: number) => {
   setTimeout(() => {
     window.location.reload();
   }, time ?? 10);
+};
+
+export const lowerCase = (str: string | null) => {
+  if (!str) return str;
+  return str.toLowerCase();
+};
+
+export const upperCase = (str: string | null) => {
+  if (!str) return str;
+  return str.toUpperCase();
+};
+
+export const overrideQueryParameters = (
+  newParams: Record<string, string | null>
+) => {
+  const nParams = constructSearchUrlFromObject(newParams);
+  const urlObj = new URL(
+    `${window.location.origin}${window.location.pathname}?${nParams}`
+  );
+  const params = new URLSearchParams();
+  Object.keys(newParams).forEach((key) => {
+    if (newParams[key] !== null) {
+      params.set(key, newParams[key]);
+    } else {
+      params.delete(key);
+    }
+  });
+  urlObj.search = params.toString();
+  window.history.replaceState({}, "", urlObj.toString());
+};
+
+export const getAxiosErrorMessage = (
+  error: AxiosError & {
+    response?: { data?: { message?: string | { desc: string } } };
+  },
+  message?: string
+): string => {
+  if (typeof error?.response?.data?.message === "string") {
+    return error.response.data.message;
+  }
+  if (typeof error?.response?.data?.message?.desc === "string") {
+    return error.response.data.message.desc;
+  }
+  return error?.message || message || "An unknown error occurred";
+};
+
+export const capitalizeWords = (str: string): string => {
+  return str
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };

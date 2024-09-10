@@ -1,5 +1,4 @@
 "use client";
-
 import { Mail, ClosedEye, Eye, CircleUser } from "@components/icons";
 import Input from "@/components/ui/input";
 import { useFormik } from "formik";
@@ -16,13 +15,14 @@ import * as yup from "yup";
 import {
   FlexColStart,
   FlexColStartCenter,
-  FlexRowStartBtw,
+  FlexRowCenterBtw,
 } from "@components/Flex";
 import Button from "@components/ui/button";
-import ErrorComponent from "../../../components/ErrorComponent";
+import ErrorComponent from "@/components/ErrorComponent";
 import withoutAuth from "@/utils/auth-helpers/withoutAuth";
 import Link from "next/link";
 import { useDataCtx } from "@/context/DataCtx";
+import { toast } from "react-toastify";
 
 const validationSchema = yup.object({
   firstName: yup
@@ -49,12 +49,10 @@ const Signup = () => {
   const [showConfirmPassword, setShowConirmPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<String | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
-    // remove this during code cleanup
     setShowConirmPassword(false);
-
-    // UPDATE NAVBAR BG COLOR
     setNavbarBgColor({
       parent: "#f4f9ff",
       child: "#fff",
@@ -62,46 +60,39 @@ const Signup = () => {
   }, []);
 
   const onSubmit = async (values: SignUpData) => {
+    if (!termsAccepted) {
+      toast.error("Accept the Terms and Conditions to continue.");
+      return;
+    }
+
     const { confirmPassword, ...data } = values;
     setIsLoading(true);
     try {
-      const res = await registerUser(data).catch((err) => {
-        const errorResponse: LogInResponse = err.response.data;
-        console.log(err.response.data);
-        console.log("Information " + errorResponse?.message.code);
-        // Set error message
-        const errorCode = errorResponse?.message.code;
-        if (errorCode == 409) {
-          setErrorMessage(
-            `User with email ${data.email} already exists, please login.`
-          );
-        } else {
-          setErrorMessage("error occured while login");
-        }
-        setError(true);
-        console.error(err);
-        setIsLoading(false);
-      });
+      const res = await registerUser(data);
       const resData: SignUpResponse = res?.data;
 
-      if (res && resData?.success) {
-        // setToken
+      if (resData?.success) {
         localStorage.setItem(TOKEN_NAME, resData.data.token.split(" ")[1]);
-        setIsLoading(false);
-
-        // route to verify-account
         router.push("/auth/verify-account");
         window.location.reload();
       } else {
-        // Set error message
         setError(true);
-        setIsLoading(false);
+        setErrorMessage("Error occurred while signing up");
       }
-    } catch (err) {
-      setIsLoading(false);
+    } catch (err: any) {
+      const errorResponse: LogInResponse = err.response?.data;
+      const errorCode = errorResponse?.message.code;
+      if (errorCode === 409) {
+        setErrorMessage(
+          `User with email ${data.email} already exists, please login.`
+        );
+      } else {
+        setErrorMessage("Error occurred while signing up");
+      }
       setError(true);
       console.error(err);
-      setErrorMessage("error occured while login");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -119,9 +110,9 @@ const Signup = () => {
   });
 
   return (
-    <FlexColStart className="w-full h-full bg-gray-200 pt-[40px] px-[16px] pb-[150px] ">
-      <FlexColStartCenter className="w-full h-auto text-center bg-white-100 rounded-[8px] pt-[24px] px-[16px] pb-[23px] ">
-        <h4 className="text-[16px] text-center font-semibold font-pp leading-[24px] mb-[24px] text-blue-200">
+    <FlexColStart className="w-full h-full bg-blue-203 pt-[40px] px-3 pb-[150px] flex items-center">
+      <FlexColStartCenter className="max-w-[609px] mx-auto text-center bg-white-100 rounded-[8px] pt-[24px] px-3 pb-[23px] md:px-10 drop-shadow-xl">
+        <h4 className="text-lg md:text-2xl text-center font-bold font-pp leading-[24px] mb-[24px] text-blue-200">
           Create An Account
         </h4>
 
@@ -144,13 +135,19 @@ const Signup = () => {
             name="firstName"
             value={formik.values.firstName}
             onChange={formik.handleChange}
-            rightIcon={<CircleUser className="stroke-none" />}
+            rightIcon={
+              <CircleUser
+                width={"24px"}
+                height={"24px"}
+                className="stroke-none mt-1 fill-blue-200"
+              />
+            }
             onBlur={formik.handleBlur}
+            required
             placeholder="Enter First Name"
             parentClassname="w-full px-0 border border-white-400/50 px-4"
             inputClassname="w-full px-3 outline-none border-none"
           />
-          <br />
           <ErrorComponent
             value={
               formik.touched.lastName && formik.errors.lastName
@@ -165,13 +162,18 @@ const Signup = () => {
             value={formik.values.lastName}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            rightIcon={<CircleUser className="stroke-none" />}
+            rightIcon={
+              <CircleUser
+                width={"24px"}
+                height={"24px"}
+                className="stroke-none fill-blue-200 mt-1"
+              />
+            }
+            required
             placeholder="Enter Last Name"
             parentClassname="w-full px-0 border border-white-400/50 px-4"
             inputClassname="w-full px-3 outline-none border-none"
           />
-
-          <br />
           <ErrorComponent
             value={
               formik.touched.email && formik.errors.email
@@ -187,6 +189,7 @@ const Signup = () => {
             value={formik.values.email}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
+            required
             rightIcon={
               <Mail
                 strokeWidth={1}
@@ -198,7 +201,6 @@ const Signup = () => {
             parentClassname="w-full px-0 border border-white-400/50 px-4"
             inputClassname="w-full px-3 outline-none border-none"
           />
-          <br />
           <ErrorComponent
             value={
               formik.touched.password && formik.errors.password
@@ -213,6 +215,7 @@ const Signup = () => {
             value={formik.values.password}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
+            required
             rightIcon={
               showPassword ? (
                 <Eye
@@ -233,7 +236,6 @@ const Signup = () => {
             inputClassname="w-full px-3 outline-none border-none"
           />
 
-          <br />
           <ErrorComponent
             value={
               formik.touched.confirmPassword && formik.errors.confirmPassword
@@ -249,16 +251,17 @@ const Signup = () => {
             value={formik.values.confirmPassword}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
+            required
             rightIcon={
               showConfirmPassword ? (
                 <Eye
                   className="cursor-pointer"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowConirmPassword(!showConfirmPassword)}
                   size={20}
                 />
               ) : (
                 <ClosedEye
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowConirmPassword(!showConfirmPassword)}
                   size={20}
                   className="cursor-pointer"
                 />
@@ -269,27 +272,36 @@ const Signup = () => {
             inputClassname="w-full px-3 outline-none border-none"
           />
 
-          <FlexRowStartBtw className="w-full py-10 mb-[24px]">
-            <input type="checkbox" />
-            <p className="font-pp font-normal text-blue-200 text-[12px] leading-[17px]">
+          <FlexRowCenterBtw className="w-full mb-[14px]">
+            {/*  */}
+            <label className="checkbox-container">
+              <input
+                type="checkbox"
+                className="checkbox-input"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+              />
+              <span className="checkbox-checkmark"></span>
+            </label>
+            <p className="font-pp font-normal text-blue-200 text-[12px] leading-[17px] text-start">
               By clicking Sign Up you agree to our{" "}
               <a
                 target="_blank"
                 href="/docs/BizConnect24-Terms-of-Agreement.pdf"
-                className="text-teal-100 underline cursor-pointer"
+                className="text-teal-100 cursor-pointer under"
               >
                 Terms and Conditions
               </a>{" "}
-              and that you have read our{" "}
+              and that you have <br className="hidden md:block" /> read our{" "}
               <a
                 target="_blank"
                 href="/docs/BizConnect24-Terms-of-Agreement.pdf" // pointing to the public dir
-                className="text-teal-100 underline cursor-pointer"
+                className="text-teal-100 no-underline cursor-pointer"
               >
                 Privacy Policy
               </a>
             </p>
-          </FlexRowStartBtw>
+          </FlexRowCenterBtw>
 
           <Button
             intent={"primary"}
@@ -303,10 +315,12 @@ const Signup = () => {
           </Button>
         </form>
 
-        <p className="text-blue-200/70 text-[14px] font-pp mt-[14px] ">
+        <p className="text-red-700 font-medium leading-[19.6px] text-[14px] font-pp mt-[4px] ">
           Have an Account?{" "}
           <Link href="/auth/login">
-            <span className="text-blue-200 underline font-medium">Sign in</span>
+            <span className="text-blue-200 font-normal leading-[19.6px]">
+              Sign in
+            </span>
           </Link>
         </p>
       </FlexColStartCenter>

@@ -6,6 +6,7 @@
     "import/no-anonymous-default-export": "off",
     "jsx-a11y/alt-text": "off",
     "react/no-unescaped-entities": "off",
-    "react-hooks/rules-of-hooks": "off"
+    "react-hooks/rules-of-hooks": "off",
+    "react/display-name": "off"
   }
 }

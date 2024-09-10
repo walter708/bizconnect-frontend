@@ -1,31 +1,32 @@
 "use client";
+import { cn } from "@/lib/utils";
 import { FlexColCenter, FlexRowStart } from "@components/Flex";
 import { EmptyCart, ChevronRight } from "@components/icons";
-import useTrackPageSearch from "@/hooks/useTrackSearch";
 
 interface NotfoundProps {
   message?: string;
+  className?: React.ComponentProps<"div">["className"];
 }
 
-const BusinessesNotfound = ({ message }: NotfoundProps) => {
-  const prevPageSearch = useTrackPageSearch();
-
+const BusinessesNotfound = ({ message, className }: NotfoundProps) => {
   return (
-    <FlexColCenter className="w-full gap-4 min-h-[250px]">
+    <FlexColCenter className={cn("w-full gap-4 min-h-[250px]", className)}>
       <EmptyCart
-        size={25}
+        size={30}
         strokeWidth={1}
         className="fill-gray-100 stroke-none"
       />
-      <p className="text-[12px] font-normal font-pp text-gray-103">
+      <p className="text-[12px] font-normal font-archivo text-gray-103">
         {message ?? "No similar businesses found."}
       </p>
-      <a
+      <button
         className="flex flex-row items-start justify-start gap-4 cursor-pointer border-none outline-none bg-none"
-        href={`/search${prevPageSearch}`}
+        onClick={() => {
+          window.history.back();
+        }}
       >
         <FlexRowStart className="w-full">
-          <p className="text-[13px] font-normal font-pp underline text-teal-100">
+          <p className="text-[13px] font-normal font-archivo underline text-teal-100">
             Explore other business categories
           </p>
           <ChevronRight
@@ -34,7 +35,7 @@ const BusinessesNotfound = ({ message }: NotfoundProps) => {
             className="relative stroke-teal-100"
           />
         </FlexRowStart>
-      </a>
+      </button>
     </FlexColCenter>
   );
 };

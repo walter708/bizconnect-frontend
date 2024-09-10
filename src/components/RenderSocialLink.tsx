@@ -1,18 +1,12 @@
 import { Globe } from "@components/icons";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
 import TooltipComp from "./TooltipComp";
+import type { ValidSocialMedia } from "@/types/business";
 
-interface SocialMediaProps {
+type SocialMediaProps = {
   url: string;
-  name:
-    | "facebook"
-    | "instagram"
-    | "twitter"
-    | "linkedin"
-    | "tiktok"
-    | "website";
-}
+  name: ValidSocialMedia;
+};
 
 const RenderSocialLinks = ({ url, name }: SocialMediaProps) => {
   const { valid } = isUrlValid(url);

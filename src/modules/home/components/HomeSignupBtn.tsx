@@ -11,23 +11,24 @@ import React from "react";
 export default function HomeSignupBtn() {
   const { loading, userDetails } = useAuth();
 
-  if (!loading && !userDetails) return null;
+  if (loading) return null;
+
+  if (userDetails) return null;
 
   return (
     <FlexColCenter
-      className="w-full max-w-[197px] "
+      className="w-full max-w-[197px] gap-0"
       style={{
         display: "flex",
         justifyContent: "center",
-        paddingTop: "40px",
       }}
     >
       <Button
         intent="primary"
         href="/signup"
-        className="w-full max-w-[197px] h-[55px] px-[15px] py-[15px] rounded-md bg-white-100 hover:bg-white-100/90 "
+        className="w-full max-w-[197px] px-[15px] rounded-md bg-white-100 hover:bg-white-100/90 "
       >
-        <span className="font-hnM font-bold text-[14px] leading-[14px] text-left text-blue-200 ">
+        <span className="font-hnM font-bold text-[14px] leading-[14px] text-left text-blue-200 px-10">
           Sign Up
         </span>
       </Button>

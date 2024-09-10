@@ -1,18 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-    "./src/modules/**/*.{ts,tsx}",
-  ],
+  content: ["./src/**/*.{ts,tsx}", "./src/modules/**/*.{ts,tsx}"],
   theme: {
     container: {
       center: true,
       padding: "2rem",
       screens: {
         "2xl": "1400px",
+        "3xl": "1600px",
       },
     },
     extend: {
@@ -34,6 +29,8 @@ module.exports = {
             shade80: "#96D4AB",
             shade90: "#CAEAD4",
             shade95: "#E6F5EA",
+            shade99: "#1ABEBB",
+            shade100: "#C1FFFE",
           },
           red: {
             primary: "#FF2E2E",
@@ -72,13 +69,19 @@ module.exports = {
           300: "#312c3b",
           400: "#3e3749",
           500: "rgba(0,0,0,.4)",
+          501: "#292D32",
         },
         gray: {
           100: "#828297",
           102: "#ccc",
           103: "#9090A7",
+          104: "#F5F5FC",
           200: "#f9f9f9",
           201: "#eaeaea",
+          202: "#989898",
+          203: "#DDDDDD",
+          204: "#DBD8D8",
+          207: "#A0AEC0",
         },
         red: {
           100: "rgb(255, 0, 0, .4)",
@@ -91,6 +94,9 @@ module.exports = {
           500: "#660000",
           600: "#330000",
           700: "#000000",
+          800: "#FFECEC",
+          802: "#F75C4E",
+          803: "#FF6F6F",
         },
         orange: {
           100: "#FF8A65",
@@ -102,11 +108,15 @@ module.exports = {
           100: "#3770fe",
           101: "#6b77f1",
           102: "#67A2F1",
+          103: "#EEF7FF",
           200: "#0e2d52",
           201: "#f4fbfe",
           202: "#e7f2ff",
           203: "#f4f9ff",
           204: "#F6F8FA",
+          205: "#F7F8FA",
+          209: "#E2EFFF",
+          210: "#0F2D53",
         },
         green: {
           100: "#22C55E",
@@ -195,9 +205,7 @@ module.exports = {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
       },
       fontFamily: {
-        pp: ["var(--font-pp)"],
-        os: ["var(--font-os)"],
-        inter: ["var(--font-inter)"],
+        archivo: ["var(--font-archivo)"],
       },
     },
   },
@@ -212,6 +220,15 @@ module.exports = {
           },
           "&:active": {
             transform: "scale(0.85)",
+          },
+        },
+        ".enableMiniBounceEffect": {
+          transition: "all 0.1s",
+          "&:target": {
+            transform: "scale(1)",
+          },
+          "&:active": {
+            transform: "scale(0.99)",
           },
         },
         ".flex-center": {

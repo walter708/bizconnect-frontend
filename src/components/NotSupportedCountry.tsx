@@ -33,7 +33,9 @@ export const NotsupportedCountryBanner = () => {
   return (
     <div className="w-full bg-white-105">
       <FlexRowStartCenter
-        className={cn("w-full px-4 py-3 bg-yellow-100 text-white-102 gap-2")}
+        className={cn(
+          "w-full h-[30px] px-4 bg-yellow-100/80 text-white-102 gap-2"
+        )}
       >
         <Info size={20} color="#fff" />
         <span className="text-white-100 text-xs font-semibold font-inter drop-shadow">

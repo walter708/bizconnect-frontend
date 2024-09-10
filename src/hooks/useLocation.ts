@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import useAfterMount from "./useAfterMount";
 
 interface LocationResp {
   status?: string;
@@ -23,40 +24,44 @@ export const useLocation = () => {
     loading: true,
   });
 
-  useEffect(() => {
-    const fetchLocation = async () => {
-      try {
-        const ipAddress = await getIpAddress();
-        if (!ipAddress) {
-          setLocationData({
-            location: { country: DEFAULT_COUNTRY },
-            loading: false,
-          });
-          return;
-        }
-        const location = await getLocation(ipAddress);
-        if (!location) {
-          setLocationData({
-            location: { country: DEFAULT_COUNTRY },
-            loading: false,
-          });
-          return;
-        }
-
-        setLocationData({ location, loading: false });
-      } catch (error) {
-        console.error(error);
+  const fetchLocation = useCallback(async () => {
+    try {
+      const ipAddress = await getIpAddress();
+      if (!ipAddress) {
         setLocationData({
           location: { country: DEFAULT_COUNTRY },
           loading: false,
         });
+        return;
       }
-    };
+      const location = locationData.location
+        ? null
+        : await getLocation(ipAddress);
+      if (!location) {
+        setLocationData({
+          location: { country: DEFAULT_COUNTRY },
+          loading: false,
+        });
+        return;
+      }
 
-    fetchLocation();
+      setLocationData({ location, loading: false });
+    } catch (error) {
+      console.error(error);
+      setLocationData({
+        location: { country: DEFAULT_COUNTRY },
+        loading: false,
+      });
+    }
   }, []);
 
-  useEffect(() => {
+  useAfterMount(() => {
+    if (!locationData.location) {
+      fetchLocation();
+    }
+  }, []);
+
+  useAfterMount(() => {
     if (locationData.location) {
       localStorage.setItem("location", JSON.stringify(locationData.location));
     }

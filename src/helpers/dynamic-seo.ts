@@ -111,6 +111,8 @@ export async function getBusinesses(queryParams: string) {
 export async function getBusinessesWithPagination(queryParams: string) {
   const url = `${bizConnectAPI.baseURL}/api/businesses/search${queryParams}`;
   const result = await axios.get(url);
+  console.log("The Result ", result);
+
   return {
     businesses: result.data?.data.businessProfiles.data || [],
     pagination: {

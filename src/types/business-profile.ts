@@ -1,3 +1,5 @@
+import type { OperationDays } from "./business";
+
 export interface IBusinessProfile {
   uuid: string;
   userUuid: string;
@@ -10,11 +12,11 @@ export interface IBusinessProfile {
   street?: string;
   postalCode?: string;
   logoUrl?: string;
+  croppedImageUrl?: string; // NEW
+  imageUrl?: string; // NEW
+  operationDays: OperationDays;
   phoneNumber?: string;
   businessEmail?: string;
-  openTime?: string;
-  closeTime?: string;
-  daysOfOperation?: string[];
   websiteUrl?: string;
   linkedinUrl?: string;
   instagramUrl?: string;
@@ -45,4 +47,17 @@ export interface IFilter {
 
 export interface ISearch {
   filters: IFilter[];
+}
+
+export interface INFilters {
+  category?: string | null;
+  country?: string | null;
+  stateAndProvince?: string | null;
+  city: string | null;
+  query?: string | null;
+  layout?: string | null;
+  pagination?: {
+    page?: number | null;
+    limit?: number | null;
+  };
 }

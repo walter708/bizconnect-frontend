@@ -2,6 +2,7 @@
 import {
   BusinessCreationBody,
   ContactSupportDataSchema,
+  type UpdateBusinessBody,
 } from "@/types/business";
 import { bizConnectAPI } from "@/config";
 import $axios from "./axios";
@@ -35,9 +36,9 @@ export const getUserBusinessProfileList = () => {
   return $axios.get(url);
 };
 
-export const searchForBusinesses = (queryParams: string) => {
-  const url = `/businesses/search?${queryParams}`;
-  return $axios.get(url);
+export const searchForBusinesses = async (queryParams: string) => {
+  const res = await $axios.get(`/businesses/search?${queryParams}`);
+  return res.data;
 };
 
 export const getBusinessProfileById = (id: string) => {
@@ -57,7 +58,7 @@ export const getUserBusinessProfileDetail = (id: string) => {
 
 export const updateUserBusinessProfileDetail = (
   id: string,
-  data: BusinessCreationBody
+  data: UpdateBusinessBody
 ) => {
   const url = `/business-profile/update/${id}`;
   return $axios.post(url, data);
